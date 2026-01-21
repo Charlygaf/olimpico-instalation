@@ -135,7 +135,7 @@ function PhonePageContent() {
         const alpha = event.alpha
         const beta = event.beta
         const gamma = event.gamma
-        
+
         if (alpha !== null && beta !== null && gamma !== null) {
           setData((prev) => {
             if (!prev) return prev
