@@ -295,8 +295,8 @@ function PhonePageContent() {
     // Send immediately
     sendData()
 
-    // Then send every 2 seconds
-    intervalRef.current = setInterval(sendData, 2000)
+    // Then send every 100ms for fluid movement
+    intervalRef.current = setInterval(sendData, 100)
 
     return () => {
       if (intervalRef.current) {

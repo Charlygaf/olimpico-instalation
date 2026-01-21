@@ -22,10 +22,10 @@ export async function GET(request: NextRequest) {
       // Send initial phones
       sendPhones()
 
-      // Send updates every 1 second
+      // Send updates every 100ms for fluid movement
       const interval = setInterval(() => {
         sendPhones()
-      }, 1000)
+      }, 100)
 
       // Clean up on close
       request.signal.addEventListener('abort', () => {
