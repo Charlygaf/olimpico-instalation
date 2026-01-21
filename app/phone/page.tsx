@@ -132,15 +132,22 @@ function PhonePageContent() {
 
     const setupGyroscope = () => {
       const handleOrientation = (event: DeviceOrientationEvent) => {
-        if (event.alpha !== null && event.beta !== null && event.gamma !== null) {
-          setData((prev) => ({
-            ...prev!,
-            gyroscope: {
-              alpha: event.alpha,
-              beta: event.beta,
-              gamma: event.gamma,
-            },
-          }))
+        const alpha = event.alpha
+        const beta = event.beta
+        const gamma = event.gamma
+        
+        if (alpha !== null && beta !== null && gamma !== null) {
+          setData((prev) => {
+            if (!prev) return prev
+            return {
+              ...prev,
+              gyroscope: {
+                alpha: alpha,
+                beta: beta,
+                gamma: gamma,
+              },
+            }
+          })
           setGyroscopeError('')
         }
       }
