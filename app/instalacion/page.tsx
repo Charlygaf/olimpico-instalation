@@ -63,25 +63,31 @@ export default function InstalacionPage() {
   }, [phones])
 
   // Calculate positions for each layer based on gyroscope data
+  // Phone acts as a pointer: tilt left/right moves layer horizontally, tilt forward/back moves vertically
   const layerPositions = useMemo<LayerPosition[]>(() => {
     const positions: LayerPosition[] = []
     const screenCenterX = 50 // 50% of screen width
     const screenCenterY = 50 // 50% of screen height
-    const maxOffset = 25 // Maximum offset in percentage
+    const maxOffset = 45 // Maximum offset in percentage (increased for more movement range)
 
     for (let i = 0; i < 5; i++) {
       const phone = phonesWithGyro[i]
       if (phone?.gyroscope) {
         const { beta, gamma } = phone.gyroscope
 
-        // Normalize beta (-180 to 180) to x position (-maxOffset to maxOffset)
-        // Normalize gamma (-90 to 90) to y position (-maxOffset to maxOffset)
-        // Clamp values to prevent going off screen
-        const normalizedBeta = Math.max(-1, Math.min(1, beta / 180))
+        // Horizontal movement: gamma (left-right tilt, -90 to 90 degrees) controls X position
+        // Tilt phone left (negative gamma) → layer moves left
+        // Tilt phone right (positive gamma) → layer moves right
         const normalizedGamma = Math.max(-1, Math.min(1, gamma / 90))
 
-        const x = screenCenterX + normalizedBeta * maxOffset
-        const y = screenCenterY + normalizedGamma * maxOffset
+        // Vertical movement: beta (front-back tilt, -180 to 180 degrees) controls Y position
+        // Tilt phone forward (positive beta) → layer moves down
+        // Tilt phone backward (negative beta) → layer moves up
+        // Invert beta so forward tilt moves layer up (more intuitive)
+        const normalizedBeta = Math.max(-1, Math.min(1, -beta / 180))
+
+        const x = screenCenterX + normalizedGamma * maxOffset
+        const y = screenCenterY + normalizedBeta * maxOffset
 
         positions.push({ x, y })
       } else {
@@ -142,7 +148,7 @@ export default function InstalacionPage() {
               key={layer.name}
               transform={`translate(${position.x}, ${position.y})`}
               style={{
-                transition: 'transform 0.15s ease-out',
+                transition: 'transform 0.05s ease-out',
               }}
             >
               <path
