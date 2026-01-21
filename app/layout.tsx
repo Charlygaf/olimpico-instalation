@@ -2,9 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'OLÍMPICO — Instalación',
-  description: 'Instalación web interactiva de Olímpico Estudio',
-  // Sin viewport restrictions para permitir proyección flexible
+  title: 'Phone Connection App',
+  description: 'Connect your phone via QR code',
 }
 
 export default function RootLayout({
@@ -13,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="en">
       <body>{children}</body>
     </html>
   )
