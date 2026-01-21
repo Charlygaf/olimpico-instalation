@@ -22,18 +22,38 @@ function getLocalIP(): string | null {
 }
 
 export async function GET() {
-  const localIP = getLocalIP()
-  const port = process.env.PORT || '3000'
+  // Priority 1: Explicit base URL from environment (for hosted deployments)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL
 
-  // Check if we have a tunnel URL from environment
+  if (baseUrl) {
+    return NextResponse.json({
+      url: baseUrl,
+      type: 'hosted'
+    })
+  }
+
+  // Priority 2: Vercel URL (automatically set by Vercel)
+  const vercelUrl = process.env.VERCEL_URL
+  if (vercelUrl) {
+    const protocol = process.env.VERCEL_ENV === 'production' ? 'https' : 'https'
+    return NextResponse.json({
+      url: `${protocol}://${vercelUrl}`,
+      type: 'vercel'
+    })
+  }
+
+  // Priority 3: Tunnel URL from environment
   const tunnelUrl = process.env.TUNNEL_URL
-
   if (tunnelUrl) {
     return NextResponse.json({
       url: tunnelUrl,
       type: 'tunnel'
     })
   }
+
+  // Priority 4: Local network IP (for local development)
+  const localIP = getLocalIP()
+  const port = process.env.PORT || '3000'
 
   if (localIP) {
     return NextResponse.json({
@@ -42,9 +62,10 @@ export async function GET() {
     })
   }
 
-  // Fallback to localhost (won't work from phone but at least shows something)
+  // Fallback: Try to get from request headers (for some hosting platforms)
+  // This will be handled by the client-side fallback in the page component
   return NextResponse.json({
-    url: `http://localhost:${port}`,
-    type: 'localhost'
+    url: process.env.NEXT_PUBLIC_FALLBACK_URL || 'http://localhost:3000',
+    type: 'fallback'
   })
 }

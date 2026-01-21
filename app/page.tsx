@@ -13,11 +13,17 @@ export default function Home() {
     const id = `phone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     setConnectionId(id)
 
-    // Fetch the server URL from the API (which knows the local IP)
+    // Fetch the server URL from the API (which knows the local IP or hosted URL)
     fetch('/api/server-url')
       .then(res => res.json())
       .then(data => {
-        const baseUrl = data.url
+        let baseUrl = data.url
+
+        // If we got a fallback, try to use the current origin
+        if (data.type === 'fallback' && typeof window !== 'undefined') {
+          baseUrl = window.location.origin
+        }
+
         setServerUrl(baseUrl)
         const phoneUrl = `${baseUrl}/phone?id=${id}`
         setQrUrl(phoneUrl)
@@ -25,7 +31,7 @@ export default function Home() {
       })
       .catch(error => {
         console.error('Error fetching server URL:', error)
-        // Fallback to current origin
+        // Fallback to current origin (works for hosted deployments)
         const baseUrl = typeof window !== 'undefined'
           ? window.location.origin
           : 'http://localhost:3000'
@@ -75,13 +81,20 @@ export default function Home() {
               {qrUrl}
             </a>
 
-            {serverUrl.includes('localhost') && (
+            {serverUrl.includes('localhost') && !serverUrl.includes('https://') && (
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
                 <p className="font-semibold mb-1">⚠️ Note:</p>
                 <p>Using localhost - your phone won't be able to connect unless you're using a tunnel.</p>
                 <p className="mt-2">
                   Make sure your phone is on the same WiFi network, or use: <code className="bg-yellow-100 px-1 rounded">npm run tunnel</code>
                 </p>
+              </div>
+            )}
+
+            {serverUrl.includes('https://') && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+                <p className="font-semibold mb-1">✅ Secure Connection</p>
+                <p>Using HTTPS - all device features (camera, gyroscope, location) will work!</p>
               </div>
             )}
           </div>
