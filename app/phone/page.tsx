@@ -18,8 +18,10 @@ interface PhoneData {
 function PhonePageContent() {
   const [connectionId, setConnectionId] = useState<string>('')
   const [data, setData] = useState<PhoneData | null>(null)
+  const [showVideoModal, setShowVideoModal] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const gyroscopeCleanupRef = useRef<(() => void) | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // Generate or retrieve a unique connection ID for this phone
   useEffect(() => {
@@ -142,13 +144,37 @@ function PhonePageContent() {
     }
   }, [connectionId, data])
 
+  const handleVideoEnd = () => {
+    setShowVideoModal(false)
+  }
+
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-      <div className="text-center">
+      <div className="text-center space-y-6">
         <h1 className="text-2xl md:text-3xl font-bold">
           Apunta al medio de la pantalla y apreta el botón
         </h1>
+        <button
+          onClick={() => setShowVideoModal(true)}
+          className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Art
+        </button>
       </div>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+          <video
+            ref={videoRef}
+            src="/videos/janefranco.mp4"
+            autoPlay
+            playsInline
+            onEnded={handleVideoEnd}
+            className="w-full h-full object-contain"
+          />
+        </div>
+      )}
     </div>
   )
 }
