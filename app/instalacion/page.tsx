@@ -160,6 +160,25 @@ export default function InstalacionPage() {
   const pathCenterX = 960
   const pathCenterY = 540
 
+  // Layer configuration: [path, defaultFill, opacity, isEggs, xOffset]
+  const layerConfigs = [
+    { path: bunPath, fill: '#ffe4b3', opacity: 1, isEggs: false, xOffset: 0 }, // Layer 1
+    { path: eggsWhitePath, fill: '#fff', opacity: 0.95, isEggs: true, xOffset: 0 }, // Layer 2
+    { path: lettucePath, fill: '#185900', opacity: 0.95, isEggs: false, xOffset: 0, yOffset: 20 }, // Layer 3
+    { path: tomatoPath, fill: '#d51400', opacity: 0.95, isEggs: false, xOffset: 0 }, // Layer 4
+    { path: hamPath, fill: '#ffb199', opacity: 0.95, isEggs: false, xOffset: 50 }, // Layer 5
+    { path: bunPath, fill: '#ffe4b3', opacity: 1, isEggs: false, xOffset: 0 }, // Layer 6
+  ]
+
+  const layerPositions = [
+    layer1Position,
+    layer2Position,
+    layer3Position,
+    layer4Position,
+    layer5Position,
+    layer6Position,
+  ]
+
   return (
     <div
       className="fixed inset-0 overflow-hidden"
@@ -175,95 +194,69 @@ export default function InstalacionPage() {
         className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Layer 6 - bun (rendered first so it appears at the bottom) */}
-        <g
-          transform={`translate(${(layer6Position.x / 100) * 1920 - pathCenterX}, ${(layer6Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={bunPath}
-            fill="#ffe4b3"
-            opacity={1}
-          />
-        </g>
+        <defs>
+          {phonesWithGyro.map((phone, index) => {
+            if (phone.image) {
+              return (
+                <pattern
+                  key={`pattern-${phone.id}`}
+                  id={`selfie-${phone.id}`}
+                  patternUnits="userSpaceOnUse"
+                  width="100%"
+                  height="100%"
+                >
+                  <image
+                    href={phone.image}
+                    width="100%"
+                    height="100%"
+                    preserveAspectRatio="xMidYMid slice"
+                  />
+                </pattern>
+              )
+            }
+            return null
+          })}
+        </defs>
 
-        {/* Layer 5 - ham (rendered second) */}
-        <g
-          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX + 50}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={hamPath}
-            fill="#ffb199"
-            opacity={0.95}
-          />
-        </g>
+        {/* Render layers from bottom to top (6 to 1) */}
+        {[5, 4, 3, 2, 1, 0].map((layerIndex) => {
+          const phone = phonesWithGyro[layerIndex]
+          const config = layerConfigs[layerIndex]
+          const position = layerPositions[layerIndex]
+          const hasImage = phone?.image
 
-        {/* Layer 4 - cheese (tomato) (rendered third) */}
-        <g
-          transform={`translate(${(layer4Position.x / 100) * 1920 - pathCenterX}, ${(layer4Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={tomatoPath}
-            fill="#d51400"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Layer 3 - lettuce (rendered fourth) */}
-        <g
-          transform={`translate(${(layer3Position.x / 100) * 1920 - pathCenterX}, ${(layer3Position.y / 100) * 1080 - pathCenterY + 20})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={lettucePath}
-            fill="#185900"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Layer 2 - eggs (rendered fifth) */}
-        <g
-          transform={`translate(${(layer2Position.x / 100) * 1920 - pathCenterX}, ${(layer2Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={eggsWhitePath}
-            fill="#fff"
-            opacity={0.95}
-          />
-          <ellipse cx="912.2" cy="486.5" rx="38.5" ry="25.5" fill="#ffbc58" opacity={0.95} />
-          <ellipse cx="927.6" cy="558.3" rx="27.3" ry="14.1" fill="#ffbc58" opacity={0.95} />
-          <ellipse cx="1015.3" cy="567.2" rx="27.3" ry="20" fill="#ffbc58" opacity={0.95} transform="translate(-68.1 989.9) rotate(-50.5)" />
-          <ellipse cx="845" cy="527.8" rx="23.4" ry="27.3" fill="#ffbc58" opacity={0.95} transform="translate(-145.5 635.3) rotate(-38.2)" />
-          <ellipse cx="1051.7" cy="516.9" rx="19.5" ry="23.4" fill="#ffbc58" opacity={0.95} transform="translate(-103.1 716) rotate(-36)" />
-          <ellipse cx="990.5" cy="494.1" rx="27.3" ry="23.4" fill="#ffbc58" opacity={0.95} transform="translate(100.4 1152) rotate(-63)" />
-        </g>
-
-        {/* Layer 1 - bun (rendered last so it appears on top) */}
-        <g
-          transform={`translate(${(layer1Position.x / 100) * 1920 - pathCenterX}, ${(layer1Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={bunPath}
-            fill="#ffe4b3"
-            opacity={1}
-          />
-        </g>
+          return (
+            <g
+              key={`layer-${layerIndex + 1}-${phone?.id || 'none'}`}
+              transform={`translate(${(position.x / 100) * 1920 - pathCenterX + config.xOffset}, ${(position.y / 100) * 1080 - pathCenterY + (config.yOffset || 0)})`}
+              style={{
+                transition: 'transform 0.05s ease-out',
+              }}
+            >
+              {config.isEggs ? (
+                <>
+                  <path
+                    d={config.path}
+                    fill={hasImage && phone ? `url(#selfie-${phone.id})` : config.fill}
+                    opacity={config.opacity}
+                  />
+                  <ellipse cx="912.2" cy="486.5" rx="38.5" ry="25.5" fill="#ffbc58" opacity={0.95} />
+                  <ellipse cx="927.6" cy="558.3" rx="27.3" ry="14.1" fill="#ffbc58" opacity={0.95} />
+                  <ellipse cx="1015.3" cy="567.2" rx="27.3" ry="20" fill="#ffbc58" opacity={0.95} transform="translate(-68.1 989.9) rotate(-50.5)" />
+                  <ellipse cx="845" cy="527.8" rx="23.4" ry="27.3" fill="#ffbc58" opacity={0.95} transform="translate(-145.5 635.3) rotate(-38.2)" />
+                  <ellipse cx="1051.7" cy="516.9" rx="19.5" ry="23.4" fill="#ffbc58" opacity={0.95} transform="translate(-103.1 716) rotate(-36)" />
+                  <ellipse cx="990.5" cy="494.1" rx="27.3" ry="23.4" fill="#ffbc58" opacity={0.95} transform="translate(100.4 1152) rotate(-63)" />
+                </>
+              ) : (
+                <path
+                  d={config.path}
+                  fill={hasImage && phone ? `url(#selfie-${phone.id})` : config.fill}
+                  opacity={config.opacity}
+                />
+              )}
+            </g>
+          )
+        })}
       </svg>
     </div>
   )

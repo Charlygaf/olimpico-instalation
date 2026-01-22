@@ -14,6 +14,7 @@ interface PhoneData {
     gamma: number
   }
   frozen?: boolean
+  image?: string
 }
 
 function PhonePageContent() {
@@ -23,9 +24,13 @@ function PhonePageContent() {
   const [gyroscopeEnabled, setGyroscopeEnabled] = useState(false)
   const [gyroscopeFrozen, setGyroscopeFrozen] = useState(false)
   const [capturing, setCapturing] = useState(false)
+  const [showSelfieCamera, setShowSelfieCamera] = useState(false)
+  const [selfieImage, setSelfieImage] = useState<string>('')
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const gyroscopeCleanupRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const selfieVideoRef = useRef<HTMLVideoElement>(null)
+  const selfieCanvasRef = useRef<HTMLCanvasElement>(null)
   const frozenGyroscopeDataRef = useRef<{ alpha: number; beta: number; gamma: number } | null>(null)
   const isFrozenRef = useRef(false)
 
@@ -158,16 +163,78 @@ function PhonePageContent() {
     }
   }, [])
 
+  // Camera setup for selfie
+  useEffect(() => {
+    if (!showSelfieCamera || !selfieVideoRef.current) return
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setShowSelfieCamera(false)
+      return
+    }
+
+    let stream: MediaStream | null = null
+
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: 'user' } })
+      .then((mediaStream) => {
+        stream = mediaStream
+        if (selfieVideoRef.current) {
+          selfieVideoRef.current.srcObject = mediaStream
+        }
+      })
+      .catch(() => {
+        setShowSelfieCamera(false)
+      })
+
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop())
+      }
+    }
+  }, [showSelfieCamera])
+
+  const captureSelfie = () => {
+    if (!selfieVideoRef.current || !selfieCanvasRef.current) return
+
+    const video = selfieVideoRef.current
+    const canvas = selfieCanvasRef.current
+    const context = canvas.getContext('2d')
+
+    if (!context) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    context.drawImage(video, 0, 0)
+
+    const base64Image = canvas.toDataURL('image/jpeg', 0.8)
+    setSelfieImage(base64Image)
+    setShowSelfieCamera(false)
+
+    if (video.srcObject) {
+      const stream = video.srcObject as MediaStream
+      stream.getTracks().forEach((track) => track.stop())
+    }
+  }
+
+  const closeSelfieCamera = () => {
+    setShowSelfieCamera(false)
+    if (selfieVideoRef.current?.srcObject) {
+      const stream = selfieVideoRef.current.srcObject as MediaStream
+      stream.getTracks().forEach((track) => track.stop())
+    }
+  }
+
   // Send data to server periodically
   useEffect(() => {
     if (!connectionId || !data) return
 
     const sendData = async () => {
       try {
-        const payload: PhoneData & { id: string } = {
+        const payload: PhoneData & { id: string; image?: string } = {
           id: connectionId,
           ...data,
           frozen: gyroscopeFrozen, // Include frozen state
+          image: selfieImage || undefined, // Include selfie if available
         }
 
         await fetch('/api/phone', {
@@ -193,7 +260,7 @@ function PhonePageContent() {
         clearInterval(intervalRef.current)
       }
     }
-  }, [connectionId, data, gyroscopeFrozen])
+  }, [connectionId, data, gyroscopeFrozen, selfieImage])
 
   const handleVideoEnd = () => {
     setShowVideoModal(false)
@@ -260,6 +327,12 @@ function PhonePageContent() {
         >
           {capturing ? 'Abriendo...' : 'Capturar Dashboard'}
         </button>
+        <button
+          onClick={() => setShowSelfieCamera(true)}
+          className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Usar Selfie
+        </button>
       </div>
 
       {/* Video Modal */}
@@ -273,6 +346,35 @@ function PhonePageContent() {
             onEnded={handleVideoEnd}
             className="w-full h-full object-contain"
           />
+        </div>
+      )}
+
+      {/* Selfie Camera Modal */}
+      {showSelfieCamera && (
+        <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <video
+              ref={selfieVideoRef}
+              autoPlay
+              playsInline
+              className="w-full rounded-lg mb-4"
+            />
+            <canvas ref={selfieCanvasRef} className="hidden" />
+            <div className="flex gap-4">
+              <button
+                onClick={captureSelfie}
+                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white"
+              >
+                Capturar
+              </button>
+              <button
+                onClick={closeSelfieCamera}
+                className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded text-white"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
