@@ -70,7 +70,9 @@ export default function InstalacionPage() {
 
     if (phoneWithGyro?.gyroscope) {
       const { alpha, beta } = phoneWithGyro.gyroscope
-
+      
+      console.log('Gyroscope values:', { alpha, beta })
+      
       // Horizontal movement: alpha (rotation around Z-axis) controls X position
       // Use 60-degree range (±30 degrees from center) for frontal plane interaction
       // Normalize alpha to -1 to 1 range based on 60-degree total range
@@ -78,17 +80,28 @@ export default function InstalacionPage() {
       const alphaCenter = 0 // Adjust if needed based on device orientation
       const alphaOffset = ((alpha - alphaCenter + 180) % 360) - 180 // Normalize to -180 to 180
       const normalizedAlpha = Math.max(-1, Math.min(1, alphaOffset / 30)) // 60-degree range = ±30
-
+      
       // Vertical movement: beta (front-back tilt) controls Y position
       // Use 60-degree range (±30 degrees from center) for frontal plane interaction
       // Invert beta so forward tilt moves layer up (more intuitive)
       const normalizedBeta = Math.max(-1, Math.min(1, -beta / 30)) // 60-degree range = ±30
-
-      return {
+      
+      const position = {
         x: screenCenterX + normalizedAlpha * maxOffset,
         y: screenCenterY + normalizedBeta * maxOffset,
       }
+      
+      console.log('Calculated position:', {
+        alphaOffset,
+        normalizedAlpha,
+        normalizedBeta,
+        position,
+      })
+      
+      return position
     }
+    
+    console.log('No phone with gyroscope connected')
 
     // No user connected - center it
     return { x: screenCenterX, y: screenCenterY }
