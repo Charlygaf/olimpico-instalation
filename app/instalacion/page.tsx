@@ -200,9 +200,9 @@ export default function InstalacionPage() {
         className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Layer 1 - bun (rendered first so it appears at the bottom) */}
+        {/* Layer 6 - bun (rendered first so it appears at the bottom) */}
         <g
-          transform={`translate(${(layer1Position.x / 100) * 1920 - pathCenterX}, ${(layer1Position.y / 100) * 1080 - pathCenterY})`}
+          transform={`translate(${(layer6Position.x / 100) * 1920 - pathCenterX}, ${(layer6Position.y / 100) * 1080 - pathCenterY})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
@@ -214,7 +214,49 @@ export default function InstalacionPage() {
           />
         </g>
 
-        {/* Layer 2 - eggs (rendered second) */}
+        {/* Layer 5 - ham (rendered second) */}
+        <g
+          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
+          style={{
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <path
+            d={hamPath}
+            fill="#ffb199"
+            opacity={0.95}
+          />
+        </g>
+
+        {/* Layer 4 - cheese (tomato) (rendered third) */}
+        <g
+          transform={`translate(${(layer4Position.x / 100) * 1920 - pathCenterX}, ${(layer4Position.y / 100) * 1080 - pathCenterY})`}
+          style={{
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <path
+            d={tomatoPath}
+            fill="#d51400"
+            opacity={0.95}
+          />
+        </g>
+
+        {/* Layer 3 - lettuce (rendered fourth) */}
+        <g
+          transform={`translate(${(layer3Position.x / 100) * 1920 - pathCenterX}, ${(layer3Position.y / 100) * 1080 - pathCenterY + 20})`}
+          style={{
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <path
+            d={lettucePath}
+            fill="#185900"
+            opacity={0.95}
+          />
+        </g>
+
+        {/* Layer 2 - eggs (rendered fifth) */}
         <g
           transform={`translate(${(layer2Position.x / 100) * 1920 - pathCenterX}, ${(layer2Position.y / 100) * 1080 - pathCenterY})`}
           style={{
@@ -234,51 +276,9 @@ export default function InstalacionPage() {
           <ellipse cx="990.5" cy="494.1" rx="27.3" ry="23.4" fill="#ffbc58" opacity={0.95} transform="translate(100.4 1152) rotate(-63)" />
         </g>
 
-        {/* Layer 3 - lettuce (rendered third) */}
+        {/* Layer 1 - bun (rendered last so it appears on top) */}
         <g
-          transform={`translate(${(layer3Position.x / 100) * 1920 - pathCenterX}, ${(layer3Position.y / 100) * 1080 - pathCenterY + 20})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={lettucePath}
-            fill="#185900"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Layer 4 - cheese (tomato) (rendered fourth) */}
-        <g
-          transform={`translate(${(layer4Position.x / 100) * 1920 - pathCenterX}, ${(layer4Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={tomatoPath}
-            fill="#d51400"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Layer 5 - ham (rendered fifth) */}
-        <g
-          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={hamPath}
-            fill="#ffb199"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Layer 6 - bun (rendered last so it appears on top) */}
-        <g
-          transform={`translate(${(layer6Position.x / 100) * 1920 - pathCenterX}, ${(layer6Position.y / 100) * 1080 - pathCenterY})`}
+          transform={`translate(${(layer1Position.x / 100) * 1920 - pathCenterX}, ${(layer1Position.y / 100) * 1080 - pathCenterY})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
