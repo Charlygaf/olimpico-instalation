@@ -19,21 +19,13 @@ export default function InstalacionPage() {
         eventSource = new EventSource('/api/stream')
 
         eventSource.onopen = () => {
-          console.log('Connected to stream')
+          // Connected to stream
         }
 
         eventSource.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data)
             if (data.type === 'phones' && Array.isArray(data.phones)) {
-              // Log received phones when count changes
-              if (data.phones.length !== phones.length) {
-                console.log(`📥 Received ${data.phones.length} phone(s) from server:`, data.phones.map((p: PhoneData) => ({
-                  id: p.id,
-                  name: p.name || 'Unnamed',
-                  hasGyro: !!p.gyroscope,
-                })))
-              }
               setPhones(data.phones)
             }
           } catch (error) {
@@ -65,26 +57,10 @@ export default function InstalacionPage() {
   // Get phones with gyroscope data, sorted by connection time
   // First connected user gets first layer, second user gets second layer
   const phonesWithGyro = useMemo(() => {
-    // Log all phones first
-    console.log('📱 All phones:', phones.length, phones.map(p => ({
-      id: p.id,
-      name: p.name || 'Unnamed',
-      hasGyro: !!p.gyroscope,
-      gyro: p.gyroscope,
-    })))
-
     const filtered = phones
       .filter(p => p.gyroscope)
       .sort((a, b) => (a.firstSeen || a.timestamp) - (b.firstSeen || b.timestamp))
       .slice(0, 6) // Only use first 6 phones with gyroscope
-
-    const layerNames = ['Layer 1 (Bun)', 'Layer 2 (Eggs)', 'Layer 3 (Lettuce)', 'Layer 4 (Cheese)', 'Layer 5 (Ham)', 'Layer 6 (Bun)']
-    console.log(`✅ Phones with gyroscope: ${filtered.length}`, filtered.map((p, i) => ({
-      layer: layerNames[i] || `Layer ${i + 1}`,
-      id: p.id.slice(-12),
-      name: p.name || 'Unnamed',
-      firstSeen: p.firstSeen || p.timestamp,
-    })))
 
     return filtered
   }, [phones])
@@ -116,11 +92,6 @@ export default function InstalacionPage() {
       const position = {
         x: screenCenterX + normalizedAlpha * maxOffset,
         y: screenCenterY + normalizedBeta * maxOffset + layerYOffset,
-      }
-
-      // Only log occasionally to reduce spam (every 10th update)
-      if (Math.random() < 0.1) {
-        console.log(`🎯 ${layerName} - Phone: ${phone.id.slice(-8)}, Alpha: ${alpha.toFixed(1)}, Beta: ${beta.toFixed(1)}, Pos: (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`)
       }
 
       return position

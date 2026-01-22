@@ -70,16 +70,6 @@ export default function Olimpico({
       // Mínimo 0 usuarios = escala mínima, con usuarios escala hasta máximo
       const userScale = Math.max(baseScale, Math.min(baseScale + (activeUsers / 10) * scaleRange, maxScale))
 
-      // Debug: log cada 60 frames (aprox 1 segundo a 60fps)
-      if (Math.random() < 0.016) {
-        console.log('[Olimpico] Renderizando con:', {
-          activeUsers,
-          userScale,
-          languages: languages.length,
-          averageHour,
-          averageMotion,
-        })
-      }
 
       // Modo día/noche: 0 = noche (6am), 1 = día (6pm)
       const dayNight = (() => {

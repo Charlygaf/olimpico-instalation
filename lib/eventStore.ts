@@ -86,13 +86,6 @@ class EventStore {
     // Solo limpiar en getState() cuando sea necesario
     // this.cleanExpiredEvents() // Comentado para evitar eliminar eventos recién agregados
 
-    console.log('[EventStore] Evento agregado:', {
-      totalEvents: this.state.events.length,
-      activeUsers: this.state.activeUsers,
-      languages: Array.from(this.state.languages),
-      averageHour: this.state.averageHour,
-    })
-
     // Notificar a todos los suscriptores
     this.notifySubscribers()
   }
@@ -108,15 +101,6 @@ class EventStore {
       e => now - e.timestamp < 2 * 60 * 1000
     )
     this.state.activeUsers = recentEvents.length
-
-    console.log('[EventStore] getState() llamado:', {
-      skipCleanup,
-      totalEvents: this.state.events.length,
-      recentEvents: recentEvents.length,
-      activeUsers: this.state.activeUsers,
-      languagesSize: this.state.languages.size,
-      languages: Array.from(this.state.languages),
-    })
 
     // Limpiar eventos expirados después (solo los muy viejos, > 5 min)
     // Esto no afecta el cálculo de usuarios activos que usa 2 minutos
@@ -134,12 +118,6 @@ class EventStore {
       motionCount: this.state.motionCount,
     }
 
-    console.log('[EventStore] getState() retornando:', {
-      activeUsers: stateCopy.activeUsers,
-      languagesSize: stateCopy.languages.size,
-      languages: Array.from(stateCopy.languages),
-      totalEvents: stateCopy.events.length,
-    })
     return stateCopy
   }
 
@@ -149,17 +127,6 @@ class EventStore {
    */
   subscribe(callback: (state: InstallationState) => void): () => void {
     this.subscribers.add(callback)
-
-    console.log('[EventStore] Nueva suscripción, total suscriptores:', this.subscribers.size)
-    console.log('[EventStore] Estado actual antes de enviar:', {
-      totalEvents: this.state.events.length,
-      events: this.state.events.map(e => ({
-        id: e.id,
-        timestamp: e.timestamp,
-        age: Date.now() - e.timestamp,
-        language: e.language,
-      })),
-    })
 
     // NO limpiar eventos antes de enviar el estado inicial
     // Solo calcular usuarios activos
@@ -179,18 +146,11 @@ class EventStore {
       motionCount: this.state.motionCount,
     }
 
-    console.log('[EventStore] Enviando estado inicial al suscriptor:', {
-      activeUsers: initialState.activeUsers,
-      languages: Array.from(initialState.languages),
-      totalEvents: initialState.events.length,
-    })
-
     callback(initialState)
 
     // Retornar función de desuscripción
     return () => {
       this.subscribers.delete(callback)
-      console.log('[EventStore] Suscripción eliminada, total suscriptores:', this.subscribers.size)
     }
   }
 
@@ -210,20 +170,11 @@ class EventStore {
     // La limpieza se hará en el próximo getState() normal
     const currentState = this.getState(true) // skipCleanup = true
 
-    console.log('[EventStore] Notificando suscriptores:', {
-      subscribers: this.subscribers.size,
-      state: {
-        activeUsers: currentState.activeUsers,
-        languages: Array.from(currentState.languages),
-        totalEvents: currentState.events.length,
-      }
-    })
-
     this.subscribers.forEach(callback => {
       try {
         callback(currentState)
       } catch (error) {
-        console.error('Error notificando suscriptor:', error)
+        // Error notificando suscriptor
       }
     })
   }
@@ -244,12 +195,6 @@ class EventStore {
 
     // Si se eliminaron eventos, recalcular estado
     if (filteredEvents.length !== initialLength) {
-      console.log('[EventStore] cleanExpiredEvents: eliminando eventos', {
-        antes: initialLength,
-        despues: filteredEvents.length,
-        eliminados: initialLength - filteredEvents.length,
-      })
-
       this.state.events = filteredEvents
 
       // Recalcular idiomas
