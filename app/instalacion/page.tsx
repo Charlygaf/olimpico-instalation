@@ -92,8 +92,16 @@ export default function InstalacionPage() {
     return { x: screenCenterX, y: screenCenterY }
   }, [phoneWithGyro])
 
-  // SVG path from provided bun layer (viewBox: 0 0 1920 1080)
+  // SVG path from provided bun layer
+  // Path is in 1920x1080 coordinate space
+  // Path appears to be roughly centered around (960, 540) in the original viewBox
   const bunPath = 'M771.4,500.3c-6.7,13.3,9.3,35.4,11.2,56.9s1.9,50.3-1.9,73.6c-3.7,23.3-11.2,43.8-5.6,51.3,5.6,7.5,10.3,12.1,15.8,12.1s14-3.7,28.9-6.5c14.9-2.8,58.7-8.4,77.4-7.5s28,3.7,41,1.9c13-1.9,63.4-13,82-15.8,18.6-2.8,59.7-1.9,71.8-7.5,12.1-5.6,27-12.1,29.8-36.4,2.8-24.2,10.9-96,18.4-117.4,7.5-21.4-2.5-38.2-2.5-52.2s5.5-21.2,11.1-35.1,3.8-31-13-24.5c-16.8,6.5-65.2,18.6-100.7,16.8s-51.3-.9-80.2,8.4-56.9,12.1-88.5,13c-31.7.9-77.4,3.7-82,9.3s-15.8,14.9-12.1,24.2c3.7,9.3,0,33.6-.9,35.4Z'
+
+  // Use the original viewBox and position the path correctly
+  // Path center is approximately (960, 540), so we translate to center it
+  // Then apply layerPosition as percentage of viewBox
+  const pathCenterX = 960
+  const pathCenterY = 540
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden">
@@ -103,7 +111,7 @@ export default function InstalacionPage() {
         preserveAspectRatio="xMidYMid meet"
       >
         <g
-          transform={`translate(${(layerPosition.x / 100) * 1920}, ${(layerPosition.y / 100) * 1080})`}
+          transform={`translate(${(layerPosition.x / 100) * 1920 - pathCenterX}, ${(layerPosition.y / 100) * 1080 - pathCenterY})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
