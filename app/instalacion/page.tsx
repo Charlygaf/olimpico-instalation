@@ -185,7 +185,7 @@ export default function InstalacionPage() {
           <path
             d={bunPath}
             fill="#ffe4b3"
-            opacity={0.95}
+            opacity={1}
           />
         </g>
 
@@ -261,7 +261,7 @@ export default function InstalacionPage() {
           <path
             d={bunPath}
             fill="#ffe4b3"
-            opacity={0.95}
+            opacity={1}
           />
         </g>
       </svg>
