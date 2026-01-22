@@ -295,9 +295,17 @@ function PhonePageContent() {
       }}
     >
       <div className="text-center space-y-6 flex flex-col items-center">
-        <h1 className="text-2xl md:text-3xl font-bold">
-          Apunta al medio de la pantalla y apreta el botón
+        <h1
+          className="text-4xl md:text-5xl font-normal"
+          style={{
+            fontFamily: 'SnellRoundhand, ui-serif, Georgia, "Times New Roman", Times, serif',
+          }}
+        >
+          Olimpico estudio
         </h1>
+        <h3 className="text-2xl  font-semibold">
+          Apunta al medio de la pantalla y apreta el botón
+        </h3>
         <button
           onClick={enableGyroscope}
           className={`px-8 py-4 font-bold text-lg rounded-lg transition-colors ${
