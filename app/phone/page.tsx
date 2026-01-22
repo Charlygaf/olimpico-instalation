@@ -20,6 +20,7 @@ function PhonePageContent() {
   const [data, setData] = useState<PhoneData | null>(null)
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [gyroscopeEnabled, setGyroscopeEnabled] = useState(false)
+  const [capturing, setCapturing] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const gyroscopeCleanupRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -156,6 +157,24 @@ function PhonePageContent() {
     setShowVideoModal(false)
   }
 
+  // Open dashboard and instruct user to take screenshot
+  const captureDashboard = () => {
+    setCapturing(true)
+    const dashboardUrl = `${window.location.origin}/instalacion`
+    const newWindow = window.open(dashboardUrl, '_blank', 'width=1920,height=1080')
+
+    if (newWindow) {
+      // Show instructions after a short delay
+      setTimeout(() => {
+        alert('El dashboard se ha abierto en una nueva ventana.\n\nPara guardar la imagen:\n1. Toma un screenshot usando los atajos de tu dispositivo (Power + Volumen abajo en Android, o los botones laterales en iPhone)\n2. La imagen se guardará automáticamente en tu galería')
+        setCapturing(false)
+      }, 1500)
+    } else {
+      alert('Por favor, permite que se abran ventanas emergentes en la configuración del navegador y vuelve a intentar')
+      setCapturing(false)
+    }
+  }
+
   return (
     <div
       className="min-h-screen text-white flex items-center justify-center p-4"
@@ -186,6 +205,13 @@ function PhonePageContent() {
           className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors"
         >
           Que es el arte?
+        </button>
+        <button
+          onClick={captureDashboard}
+          disabled={capturing}
+          className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {capturing ? 'Abriendo...' : 'Capturar Dashboard'}
         </button>
       </div>
 
