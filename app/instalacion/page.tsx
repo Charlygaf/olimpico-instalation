@@ -69,12 +69,11 @@ export default function InstalacionPage() {
     const maxOffset = 45 // Maximum offset in percentage
 
     if (phoneWithGyro?.gyroscope) {
-      const { beta, gamma } = phoneWithGyro.gyroscope
+      const { alpha, beta } = phoneWithGyro.gyroscope
 
-      // Horizontal movement: gamma (left-right tilt, -90 to 90 degrees) controls X position
-      // Tilt phone left (negative gamma) → layer moves left
-      // Tilt phone right (positive gamma) → layer moves right
-      const normalizedGamma = Math.max(-1, Math.min(1, gamma / 90))
+      // Horizontal movement: alpha (rotation around Z-axis, 0-360 degrees) controls X position
+      // Normalize alpha to -1 to 1 range for centered movement
+      const normalizedAlpha = ((alpha % 360) / 360) * 2 - 1
 
       // Vertical movement: beta (front-back tilt, -180 to 180 degrees) controls Y position
       // Tilt phone forward (positive beta) → layer moves down
@@ -83,7 +82,7 @@ export default function InstalacionPage() {
       const normalizedBeta = Math.max(-1, Math.min(1, -beta / 180))
 
       return {
-        x: screenCenterX + normalizedGamma * maxOffset,
+        x: screenCenterX + normalizedAlpha * maxOffset,
         y: screenCenterY + normalizedBeta * maxOffset,
       }
     }
