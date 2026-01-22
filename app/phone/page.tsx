@@ -325,14 +325,19 @@ function PhonePageContent() {
           disabled={capturing}
           className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {capturing ? 'Abriendo...' : 'Capturar Dashboard'}
+          {capturing ? 'Abriendo...' : 'Screenshot'}
         </button>
         <button
           onClick={() => setShowSelfieCamera(true)}
-          className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors"
+          className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition-colors"
         >
           Usar Selfie
         </button>
+        {selfieImage && (
+          <div className="text-sm text-white/80">
+            ✓ Selfie capturada
+          </div>
+        )}
       </div>
 
       {/* Video Modal */}

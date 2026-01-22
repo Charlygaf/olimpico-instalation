@@ -79,9 +79,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          Connect Your Phone
-        </h1>
+
         <p className="text-gray-600 mb-6 text-center">
           Scan this QR code with your phone to connect
         </p>
@@ -140,7 +138,7 @@ export default function Home() {
               href="/instalacion"
               className="text-blue-600 hover:underline"
             >
-              View Installation Dashboard →
+              View Installation →
             </a>
           </div>
 
@@ -154,16 +152,7 @@ export default function Home() {
             </button>
           </div>
 
-          {!serverUrl.includes('localhost') && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
-              <p className="font-semibold mb-1">💡 Tip:</p>
-              <p>For better device access (especially gyroscope on iOS), consider using HTTPS tunnel:</p>
-              <p className="mt-1 font-mono text-xs bg-blue-100 px-2 py-1 rounded">
-                npm run tunnel
-              </p>
-              <p className="mt-1 text-xs">Then set TUNNEL_URL environment variable and refresh.</p>
-            </div>
-          )}
+
         </div>
       </div>
     </div>
