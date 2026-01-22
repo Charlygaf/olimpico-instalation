@@ -26,6 +26,14 @@ export default function InstalacionPage() {
           try {
             const data = JSON.parse(event.data)
             if (data.type === 'phones' && Array.isArray(data.phones)) {
+              // Log received phones when count changes
+              if (data.phones.length !== phones.length) {
+                console.log(`📥 Received ${data.phones.length} phone(s) from server:`, data.phones.map((p: PhoneData) => ({
+                  id: p.id,
+                  name: p.name || 'Unnamed',
+                  hasGyro: !!p.gyroscope,
+                })))
+              }
               setPhones(data.phones)
             }
           } catch (error) {

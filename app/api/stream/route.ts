@@ -12,6 +12,15 @@ export async function GET(request: NextRequest) {
       // Send initial state
       const sendPhones = () => {
         const phones = phoneStore.getAllPhones()
+        // Log phone store state
+        if (phones.length > 0) {
+          console.log(`[Stream] Sending ${phones.length} phone(s):`, phones.map(p => ({
+            id: p.id,
+            name: p.name || 'Unnamed',
+            hasGyro: !!p.gyroscope,
+            timestamp: p.timestamp,
+          })))
+        }
         const data = JSON.stringify({
           type: 'phones',
           phones,

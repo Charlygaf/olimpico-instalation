@@ -13,6 +13,14 @@ export async function POST(request: NextRequest) {
     // Update or add phone data
     phoneStore.addPhone(id, phoneData as any)
 
+    // Log phone updates
+    const allPhones = phoneStore.getAllPhones()
+    console.log(`[API] Phone ${id} updated. Total phones: ${allPhones.length}`, {
+      id,
+      hasGyro: !!phoneData.gyroscope,
+      allPhoneIds: allPhones.map(p => p.id),
+    })
+
     return NextResponse.json({ success: true, id })
   } catch (error) {
     console.error('Error in /api/phone:', error)
