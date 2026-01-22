@@ -153,7 +153,15 @@ export default function InstalacionPage() {
   const pathCenterY = 540
 
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden">
+    <div
+      className="fixed inset-0 overflow-hidden"
+      style={{
+        backgroundImage: 'url(/images/bg-insta.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <svg
         viewBox="0 0 1920 1080"
         className="w-full h-full"
