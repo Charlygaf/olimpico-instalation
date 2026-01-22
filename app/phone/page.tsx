@@ -317,9 +317,14 @@ function PhonePageContent() {
           <h1 className="text-2xl font-bold mb-2">
             {connected ? 'Connected' : 'Connecting...'}
           </h1>
-          <p className="text-gray-400">
+          <p className="text-gray-400 mb-2">
             Your phone data is being sent to the installation
           </p>
+          {connectionId && (
+            <p className="text-xs text-gray-500 font-mono">
+              ID: {connectionId}
+            </p>
+          )}
         </div>
 
         {/* Name Input */}

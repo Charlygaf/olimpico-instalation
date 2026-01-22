@@ -11,14 +11,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Update or add phone data
+    const existing = phoneStore.getPhone(id)
     phoneStore.addPhone(id, phoneData as any)
 
-    // Log phone updates
+    // Log phone updates with more detail
     const allPhones = phoneStore.getAllPhones()
-    console.log(`[API] Phone ${id} updated. Total phones: ${allPhones.length}`, {
-      id,
+    console.log(`[API] Phone ${id.slice(-12)} ${existing ? 'UPDATED' : 'ADDED'}. Total: ${allPhones.length}`, {
+      id: id.slice(-12),
       hasGyro: !!phoneData.gyroscope,
-      allPhoneIds: allPhones.map(p => p.id),
+      gyro: phoneData.gyroscope ? { alpha: phoneData.gyroscope.alpha?.toFixed(1), beta: phoneData.gyroscope.beta?.toFixed(1) } : null,
+      allIds: allPhones.map(p => p.id.slice(-12)),
     })
 
     return NextResponse.json({ success: true, id })
