@@ -157,8 +157,16 @@ function PhonePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-      <div className="text-center space-y-6">
+    <div
+      className="min-h-screen text-white flex items-center justify-center p-4"
+      style={{
+        backgroundImage: 'url(/images/bg-insta.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="text-center space-y-6 flex flex-col items-center">
         <h1 className="text-2xl md:text-3xl font-bold">
           Apunta al medio de la pantalla y apreta el botón
         </h1>
@@ -171,13 +179,13 @@ function PhonePageContent() {
               : 'bg-white text-black hover:bg-gray-200'
           }`}
         >
-          {gyroscopeEnabled ? 'Giroscopio Activado' : 'Activar Giroscopio'}
+          Intervenir obra
         </button>
         <button
           onClick={() => setShowVideoModal(true)}
           className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors"
         >
-          Art
+          Que es el arte?
         </button>
       </div>
 
