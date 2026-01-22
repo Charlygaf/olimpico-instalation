@@ -22,6 +22,7 @@ export interface PhoneData {
     beta: number
     gamma: number
   }
+  frozen?: boolean // If true, layer is frozen/paused and user can be replaced
   timestamp: number // Last update time
   firstSeen: number // First connection time (never changes)
 }

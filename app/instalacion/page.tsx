@@ -55,12 +55,16 @@ export default function InstalacionPage() {
   }, [])
 
   // Get phones with gyroscope data, sorted by connection time
-  // First connected user gets first layer, second user gets second layer
+  // Most recent users get priority, oldest users are replaced if more than 6 users
+  // Frozen users are considered inactive and can be replaced
   const phonesWithGyro = useMemo(() => {
     const filtered = phones
-      .filter(p => p.gyroscope)
+      .filter(p => p.gyroscope && !p.frozen) // Only active (non-frozen) phones with gyroscope
+      // Sort by most recent first (newest to oldest)
+      .sort((a, b) => (b.firstSeen || b.timestamp) - (a.firstSeen || a.timestamp))
+      .slice(0, 6) // Only use most recent 6 active phones with gyroscope
+      // Then sort back by connection time for layer assignment (oldest of the 6 gets layer 1)
       .sort((a, b) => (a.firstSeen || a.timestamp) - (b.firstSeen || b.timestamp))
-      .slice(0, 6) // Only use first 6 phones with gyroscope
 
     return filtered
   }, [phones])

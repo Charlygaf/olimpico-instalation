@@ -13,6 +13,7 @@ interface PhoneData {
     beta: number
     gamma: number
   }
+  frozen?: boolean
 }
 
 function PhonePageContent() {
@@ -20,10 +21,13 @@ function PhonePageContent() {
   const [data, setData] = useState<PhoneData | null>(null)
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [gyroscopeEnabled, setGyroscopeEnabled] = useState(false)
+  const [gyroscopeFrozen, setGyroscopeFrozen] = useState(false)
   const [capturing, setCapturing] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const gyroscopeCleanupRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const frozenGyroscopeDataRef = useRef<{ alpha: number; beta: number; gamma: number } | null>(null)
+  const isFrozenRef = useRef(false)
 
   // Generate or retrieve a unique connection ID for this phone
   useEffect(() => {
@@ -56,10 +60,33 @@ function PhonePageContent() {
     setData(phoneData)
   }, [connectionId])
 
-  // Enable gyroscope function
+  // Enable gyroscope function or toggle freeze
   const enableGyroscope = () => {
+    // If gyroscope is already enabled, toggle freeze state
+    if (gyroscopeEnabled) {
+      if (gyroscopeFrozen) {
+        // Unfreeze - resume movement
+        setGyroscopeFrozen(false)
+        isFrozenRef.current = false
+      } else {
+        // Freeze - save current position and stop updating
+        if (data?.gyroscope) {
+          frozenGyroscopeDataRef.current = { ...data.gyroscope }
+        }
+        setGyroscopeFrozen(true)
+        isFrozenRef.current = true
+      }
+      return
+    }
+
+    // First time enabling gyroscope
     const setupGyroscope = () => {
       const handleOrientation = (event: DeviceOrientationEvent) => {
+        // If frozen, don't update the data
+        if (isFrozenRef.current) {
+          return
+        }
+
         const alpha = event.alpha
         const beta = event.beta
         const gamma = event.gamma
@@ -108,6 +135,20 @@ function PhonePageContent() {
     }
   }
 
+  // Update data when frozen state changes to use frozen position
+  useEffect(() => {
+    if (gyroscopeFrozen && frozenGyroscopeDataRef.current) {
+      // Keep sending the frozen position to maintain layer position
+      setData((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          gyroscope: frozenGyroscopeDataRef.current!,
+        }
+      })
+    }
+  }, [gyroscopeFrozen])
+
   // Cleanup gyroscope on unmount
   useEffect(() => {
     return () => {
@@ -126,6 +167,7 @@ function PhonePageContent() {
         const payload: PhoneData & { id: string } = {
           id: connectionId,
           ...data,
+          frozen: gyroscopeFrozen, // Include frozen state
         }
 
         await fetch('/api/phone', {
@@ -151,7 +193,7 @@ function PhonePageContent() {
         clearInterval(intervalRef.current)
       }
     }
-  }, [connectionId, data])
+  }, [connectionId, data, gyroscopeFrozen])
 
   const handleVideoEnd = () => {
     setShowVideoModal(false)
@@ -191,14 +233,19 @@ function PhonePageContent() {
         </h1>
         <button
           onClick={enableGyroscope}
-          disabled={gyroscopeEnabled}
           className={`px-8 py-4 font-bold text-lg rounded-lg transition-colors ${
-            gyroscopeEnabled
-              ? 'bg-green-600 text-white cursor-not-allowed'
+            gyroscopeFrozen
+              ? 'bg-yellow-600 text-white'
+              : gyroscopeEnabled
+              ? 'bg-green-600 text-white'
               : 'bg-white text-black hover:bg-gray-200'
           }`}
         >
-          Intervenir obra
+          {gyroscopeFrozen
+            ? 'Intervenir obra (Pausado)'
+            : gyroscopeEnabled
+            ? 'Intervenir obra (Activo)'
+            : 'Intervenir obra'}
         </button>
         <button
           onClick={() => setShowVideoModal(true)}
