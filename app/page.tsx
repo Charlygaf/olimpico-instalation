@@ -7,6 +7,7 @@ export default function Home() {
   const [connectionId, setConnectionId] = useState<string>('')
   const [serverUrl, setServerUrl] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     // Generate a unique connection ID
@@ -41,6 +42,30 @@ export default function Home() {
         setLoading(false)
       })
   }, [])
+
+  const handleReset = async () => {
+    if (!confirm('¿Estás seguro de que quieres resetear todas las conexiones y el dashboard? Esta acción no se puede deshacer.')) {
+      return
+    }
+
+    setResetting(true)
+    try {
+      const response = await fetch('/api/reset', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        // Reload the page to refresh the state
+        window.location.reload()
+      } else {
+        alert('Error al resetear. Por favor intenta de nuevo.')
+      }
+    } catch (error) {
+      alert('Error al resetear. Por favor intenta de nuevo.')
+    } finally {
+      setResetting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -108,6 +133,16 @@ export default function Home() {
             >
               View Installation Dashboard →
             </a>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={handleReset}
+              disabled={resetting}
+              className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {resetting ? 'Reseteando...' : 'Reset'}
+            </button>
           </div>
 
           {!serverUrl.includes('localhost') && (
