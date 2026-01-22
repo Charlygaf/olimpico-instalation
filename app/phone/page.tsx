@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState, useRef, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 
 interface PhoneData {
   name?: string
@@ -24,8 +23,7 @@ interface PhoneData {
 }
 
 function PhonePageContent() {
-  const searchParams = useSearchParams()
-  const connectionId = searchParams.get('id') || ''
+  const [connectionId, setConnectionId] = useState<string>('')
   const [connected, setConnected] = useState(false)
   const [data, setData] = useState<PhoneData | null>(null)
   const [name, setName] = useState<string>('')
@@ -39,6 +37,22 @@ function PhonePageContent() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const gyroscopeCleanupRef = useRef<(() => void) | null>(null)
+
+  // Generate or retrieve a unique connection ID for this phone
+  useEffect(() => {
+    const STORAGE_KEY = 'phone-connection-id'
+
+    // Try to get existing ID from localStorage
+    let id = localStorage.getItem(STORAGE_KEY)
+
+    // If no ID exists, generate a new random one
+    if (!id) {
+      id = `phone-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+      localStorage.setItem(STORAGE_KEY, id)
+    }
+
+    setConnectionId(id)
+  }, [])
 
   useEffect(() => {
     if (!connectionId) return
