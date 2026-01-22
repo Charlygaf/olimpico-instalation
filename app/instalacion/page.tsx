@@ -78,7 +78,7 @@ export default function InstalacionPage() {
       .sort((a, b) => (a.firstSeen || a.timestamp) - (b.firstSeen || b.timestamp))
       .slice(0, 6) // Only use first 6 phones with gyroscope
 
-    const layerNames = ['Layer 1 (Bun)', 'Layer 2 (Lettuce)', 'Layer 3 (Tomato)', 'Layer 4 (Ham)', 'Layer 5 (Eggs)', 'Layer 6 (Bun)']
+    const layerNames = ['Layer 1 (Bun)', 'Layer 2 (Eggs)', 'Layer 3 (Lettuce)', 'Layer 4 (Cheese)', 'Layer 5 (Ham)', 'Layer 6 (Bun)']
     console.log(`✅ Phones with gyroscope: ${filtered.length}`, filtered.map((p, i) => ({
       layer: layerNames[i] || `Layer ${i + 1}`,
       id: p.id.slice(-12),
@@ -93,7 +93,7 @@ export default function InstalacionPage() {
   // Phone acts as a pointer: tilt left/right moves layer horizontally, tilt forward/back moves vertically
   const calculateLayerPosition = (phone: PhoneData | undefined, layerName: string, layerIndex: number): LayerPosition => {
     const screenCenterX = 50 // 50% of screen width
-    const screenCenterY = 50 // 50% of screen height
+    const screenCenterY = 35 // 35% of screen height (higher starting point for better centering)
     const maxOffset = 45 // Maximum offset in percentage
     // 100px offset in y-axis: 100px / 1080px * 100 = ~9.26% per layer
     const layerYOffset = (100 / 1080) * 100 * layerIndex
@@ -131,6 +131,7 @@ export default function InstalacionPage() {
   }
 
   // Calculate positions for all layers
+  // Order: 1-bun, 2-eggs, 3-lettuce, 4-cheese, 5-ham, 6-bun
   const layer1Position = useMemo(() => {
     const phone = phonesWithGyro[0]
     return calculateLayerPosition(phone, 'Layer 1 (Bun)', 0)
@@ -138,22 +139,22 @@ export default function InstalacionPage() {
 
   const layer2Position = useMemo(() => {
     const phone = phonesWithGyro[1]
-    return calculateLayerPosition(phone, 'Layer 2 (Lettuce)', 1)
+    return calculateLayerPosition(phone, 'Layer 2 (Eggs)', 1)
   }, [phonesWithGyro])
 
   const layer3Position = useMemo(() => {
     const phone = phonesWithGyro[2]
-    return calculateLayerPosition(phone, 'Layer 3 (Tomato)', 2)
+    return calculateLayerPosition(phone, 'Layer 3 (Lettuce)', 2)
   }, [phonesWithGyro])
 
   const layer4Position = useMemo(() => {
     const phone = phonesWithGyro[3]
-    return calculateLayerPosition(phone, 'Layer 4 (Ham)', 3)
+    return calculateLayerPosition(phone, 'Layer 4 (Cheese)', 3)
   }, [phonesWithGyro])
 
   const layer5Position = useMemo(() => {
     const phone = phonesWithGyro[4]
-    return calculateLayerPosition(phone, 'Layer 5 (Eggs)', 4)
+    return calculateLayerPosition(phone, 'Layer 5 (Ham)', 4)
   }, [phonesWithGyro])
 
   const layer6Position = useMemo(() => {
@@ -199,9 +200,23 @@ export default function InstalacionPage() {
         className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
-        {/* Fifth layer - eggs (rendered first so it appears at the very bottom) */}
+        {/* Layer 1 - bun (rendered first so it appears at the bottom) */}
         <g
-          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
+          transform={`translate(${(layer1Position.x / 100) * 1920 - pathCenterX}, ${(layer1Position.y / 100) * 1080 - pathCenterY})`}
+          style={{
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <path
+            d={bunPath}
+            fill="#ffe4b3"
+            opacity={0.95}
+          />
+        </g>
+
+        {/* Layer 2 - eggs (rendered second) */}
+        <g
+          transform={`translate(${(layer2Position.x / 100) * 1920 - pathCenterX}, ${(layer2Position.y / 100) * 1080 - pathCenterY})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
@@ -219,37 +234,9 @@ export default function InstalacionPage() {
           <ellipse cx="990.5" cy="494.1" rx="27.3" ry="23.4" fill="#ffbc58" opacity={0.95} transform="translate(100.4 1152) rotate(-63)" />
         </g>
 
-        {/* Fourth layer - ham (rendered second) */}
+        {/* Layer 3 - lettuce (rendered third) */}
         <g
-          transform={`translate(${(layer4Position.x / 100) * 1920 - pathCenterX}, ${(layer4Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={hamPath}
-            fill="#ffb199"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Third layer - tomato (rendered third) */}
-        <g
-          transform={`translate(${(layer3Position.x / 100) * 1920 - pathCenterX}, ${(layer3Position.y / 100) * 1080 - pathCenterY})`}
-          style={{
-            transition: 'transform 0.05s ease-out',
-          }}
-        >
-          <path
-            d={tomatoPath}
-            fill="#d51400"
-            opacity={0.95}
-          />
-        </g>
-
-        {/* Second layer - lettuce (rendered fourth) */}
-        <g
-          transform={`translate(${(layer2Position.x / 100) * 1920 - pathCenterX}, ${(layer2Position.y / 100) * 1080 - pathCenterY + 20})`}
+          transform={`translate(${(layer3Position.x / 100) * 1920 - pathCenterX}, ${(layer3Position.y / 100) * 1080 - pathCenterY + 20})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
@@ -261,21 +248,35 @@ export default function InstalacionPage() {
           />
         </g>
 
-        {/* First layer - bun (rendered fifth) */}
+        {/* Layer 4 - cheese (tomato) (rendered fourth) */}
         <g
-          transform={`translate(${(layer1Position.x / 100) * 1920 - pathCenterX}, ${(layer1Position.y / 100) * 1080 - pathCenterY})`}
+          transform={`translate(${(layer4Position.x / 100) * 1920 - pathCenterX}, ${(layer4Position.y / 100) * 1080 - pathCenterY})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
         >
           <path
-            d={bunPath}
-            fill="#ffe4b3"
+            d={tomatoPath}
+            fill="#d51400"
             opacity={0.95}
           />
         </g>
 
-        {/* Sixth layer - bun (rendered last so it appears on top) */}
+        {/* Layer 5 - ham (rendered fifth) */}
+        <g
+          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
+          style={{
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <path
+            d={hamPath}
+            fill="#ffb199"
+            opacity={0.95}
+          />
+        </g>
+
+        {/* Layer 6 - bun (rendered last so it appears on top) */}
         <g
           transform={`translate(${(layer6Position.x / 100) * 1920 - pathCenterX}, ${(layer6Position.y / 100) * 1080 - pathCenterY})`}
           style={{
