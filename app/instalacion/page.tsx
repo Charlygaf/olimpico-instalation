@@ -79,7 +79,7 @@ export default function InstalacionPage() {
       // Center alpha around 0 (or handle device orientation)
       const alphaCenter = 0 // Adjust if needed based on device orientation
       const alphaOffset = ((alpha - alphaCenter + 180) % 360) - 180 // Normalize to -180 to 180
-      const normalizedAlpha = Math.max(-1, Math.min(1, alphaOffset / 30)) // 60-degree range = ±30
+      const normalizedAlpha = Math.max(-1, Math.min(1, -alphaOffset / 30)) // 60-degree range = ±30, inverted
 
       // Vertical movement: beta (front-back tilt) controls Y position
       // Use 60-degree range (±30 degrees from center) for frontal plane interaction
