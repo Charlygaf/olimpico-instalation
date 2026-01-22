@@ -54,113 +54,66 @@ export default function InstalacionPage() {
     }
   }, [])
 
-  // Get phones with gyroscope data, sorted by connection time
-  const phonesWithGyro = useMemo(() => {
+  // Get first phone with gyroscope data
+  const phoneWithGyro = useMemo(() => {
     return phones
       .filter(p => p.gyroscope)
-      .sort((a, b) => a.timestamp - b.timestamp)
-      .slice(0, 5) // Only use first 5 phones with gyroscope
+      .sort((a, b) => a.timestamp - b.timestamp)[0]
   }, [phones])
 
-  // Calculate positions for each layer based on gyroscope data
+  // Calculate position for the layer based on gyroscope data
   // Phone acts as a pointer: tilt left/right moves layer horizontally, tilt forward/back moves vertically
-  const layerPositions = useMemo<LayerPosition[]>(() => {
-    const positions: LayerPosition[] = []
+  const layerPosition = useMemo<LayerPosition>(() => {
     const screenCenterX = 50 // 50% of screen width
     const screenCenterY = 50 // 50% of screen height
-    const maxOffset = 45 // Maximum offset in percentage (increased for more movement range)
+    const maxOffset = 45 // Maximum offset in percentage
 
-    for (let i = 0; i < 5; i++) {
-      const phone = phonesWithGyro[i]
-      if (phone?.gyroscope) {
-        const { beta, gamma } = phone.gyroscope
+    if (phoneWithGyro?.gyroscope) {
+      const { beta, gamma } = phoneWithGyro.gyroscope
 
-        // Horizontal movement: gamma (left-right tilt, -90 to 90 degrees) controls X position
-        // Tilt phone left (negative gamma) → layer moves left
-        // Tilt phone right (positive gamma) → layer moves right
-        const normalizedGamma = Math.max(-1, Math.min(1, gamma / 90))
+      // Horizontal movement: gamma (left-right tilt, -90 to 90 degrees) controls X position
+      // Tilt phone left (negative gamma) → layer moves left
+      // Tilt phone right (positive gamma) → layer moves right
+      const normalizedGamma = Math.max(-1, Math.min(1, gamma / 90))
 
-        // Vertical movement: beta (front-back tilt, -180 to 180 degrees) controls Y position
-        // Tilt phone forward (positive beta) → layer moves down
-        // Tilt phone backward (negative beta) → layer moves up
-        // Invert beta so forward tilt moves layer up (more intuitive)
-        const normalizedBeta = Math.max(-1, Math.min(1, -beta / 180))
+      // Vertical movement: beta (front-back tilt, -180 to 180 degrees) controls Y position
+      // Tilt phone forward (positive beta) → layer moves down
+      // Tilt phone backward (negative beta) → layer moves up
+      // Invert beta so forward tilt moves layer up (more intuitive)
+      const normalizedBeta = Math.max(-1, Math.min(1, -beta / 180))
 
-        const x = screenCenterX + normalizedGamma * maxOffset
-        const y = screenCenterY + normalizedBeta * maxOffset
-
-        positions.push({ x, y })
-      } else {
-        // No user for this layer - center it
-        positions.push({ x: screenCenterX, y: screenCenterY })
+      return {
+        x: screenCenterX + normalizedGamma * maxOffset,
+        y: screenCenterY + normalizedBeta * maxOffset,
       }
     }
 
-    return positions
-  }, [phonesWithGyro])
+    // No user connected - center it
+    return { x: screenCenterX, y: screenCenterY }
+  }, [phoneWithGyro])
 
-  // Layer definitions with proper sandwich shapes (centered around origin)
-  const layers = [
-    {
-      name: 'Bottom Bun',
-      color: '#D4A574',
-      // Bottom bun - wider, flatter, centered
-      path: 'M -40 5 Q -30 -2.5 -20 0 Q -10 -2.5 0 0 Q 10 -2.5 20 0 Q 30 -2.5 40 5 Q 0 10 -40 5 Z',
-    },
-    {
-      name: 'Tomato',
-      color: '#E63946',
-      // Tomato slice - circular/oval, centered
-      path: 'M -30 -20 Q 0 -27.5 30 -20 Q 0 -17.5 -30 -20 Z',
-    },
-    {
-      name: 'Lettuce',
-      color: '#06D6A0',
-      // Lettuce - wavy edges, centered
-      path: 'M -35 -2 Q -25 -9 -15 -2 Q -5 -9 5 -2 Q 15 -9 25 -2 Q 35 -9 35 3 Q 0 8 -35 3 Q -35 -2 -35 -2 Z',
-    },
-    {
-      name: 'Jam',
-      color: '#9B59B6',
-      // Jam - irregular blob shape, centered
-      path: 'M -32 -2 Q -20 -12 -5 -4 Q 5 -10 20 -2 Q 32 -7 32 3 Q 0 6 -32 3 Q -32 -2 -32 -2 Z',
-    },
-    {
-      name: 'Top Bun',
-      color: '#D4A574',
-      // Top bun - domed shape, centered
-      path: 'M -35 -15 Q -25 -25 -15 -20 Q -5 -25 0 -22 Q 5 -25 15 -20 Q 25 -25 35 -15 Q 0 -5 -35 -15 Z',
-    },
-  ]
+  // SVG path from provided bun layer (viewBox: 0 0 1920 1080)
+  const bunPath = 'M771.4,500.3c-6.7,13.3,9.3,35.4,11.2,56.9s1.9,50.3-1.9,73.6c-3.7,23.3-11.2,43.8-5.6,51.3,5.6,7.5,10.3,12.1,15.8,12.1s14-3.7,28.9-6.5c14.9-2.8,58.7-8.4,77.4-7.5s28,3.7,41,1.9c13-1.9,63.4-13,82-15.8,18.6-2.8,59.7-1.9,71.8-7.5,12.1-5.6,27-12.1,29.8-36.4,2.8-24.2,10.9-96,18.4-117.4,7.5-21.4-2.5-38.2-2.5-52.2s5.5-21.2,11.1-35.1,3.8-31-13-24.5c-16.8,6.5-65.2,18.6-100.7,16.8s-51.3-.9-80.2,8.4-56.9,12.1-88.5,13c-31.7.9-77.4,3.7-82,9.3s-15.8,14.9-12.1,24.2c3.7,9.3,0,33.6-.9,35.4Z'
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden">
       <svg
-        viewBox="0 0 100 100"
+        viewBox="0 0 1920 1080"
         className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
-        {layers.map((layer, index) => {
-          const position = layerPositions[index]
-
-          return (
-            <g
-              key={layer.name}
-              transform={`translate(${position.x}, ${position.y})`}
-              style={{
-                transition: 'transform 0.05s ease-out',
-              }}
-            >
-              <path
-                d={layer.path}
-                fill={layer.color}
-                opacity={0.95}
-                stroke="#000"
-                strokeWidth="0.3"
-              />
-            </g>
-          )
-        })}
+        <g
+          transform={`translate(${(layerPosition.x / 100) * 1920}, ${(layerPosition.y / 100) * 1080})`}
+          style={{
+            transition: 'transform 0.05s ease-out',
+          }}
+        >
+          <path
+            d={bunPath}
+            fill="#ffe4b3"
+            opacity={0.95}
+          />
+        </g>
       </svg>
     </div>
   )
