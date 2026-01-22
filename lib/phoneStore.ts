@@ -22,28 +22,32 @@ export interface PhoneData {
     beta: number
     gamma: number
   }
-  timestamp: number
+  timestamp: number // Last update time
+  firstSeen: number // First connection time (never changes)
 }
 
 class PhoneStore {
   private phones: Map<string, PhoneData> = new Map()
 
-  addPhone(id: string, data: Omit<PhoneData, 'id' | 'timestamp'>): void {
+  addPhone(id: string, data: Omit<PhoneData, 'id' | 'timestamp' | 'firstSeen'>): void {
     const existing = this.phones.get(id)
     if (existing) {
-      // Update existing phone
+      // Update existing phone - preserve firstSeen timestamp
       this.phones.set(id, {
         ...existing,
         ...data,
         id,
         timestamp: Date.now(),
+        // Keep original firstSeen
       })
     } else {
-      // Add new phone
+      // Add new phone - set firstSeen to now
+      const now = Date.now()
       this.phones.set(id, {
         ...data,
         id,
-        timestamp: Date.now(),
+        timestamp: now,
+        firstSeen: now,
       })
     }
   }

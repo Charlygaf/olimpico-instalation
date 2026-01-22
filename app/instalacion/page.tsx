@@ -75,13 +75,14 @@ export default function InstalacionPage() {
 
     const filtered = phones
       .filter(p => p.gyroscope)
-      .sort((a, b) => a.timestamp - b.timestamp)
+      .sort((a, b) => (a.firstSeen || a.timestamp) - (b.firstSeen || b.timestamp))
       .slice(0, 2) // Only use first 2 phones with gyroscope
 
     console.log(`✅ Phones with gyroscope: ${filtered.length}`, filtered.map((p, i) => ({
       layer: i === 0 ? 'Layer 1 (Bun)' : 'Layer 2 (Lettuce)',
-      id: p.id,
+      id: p.id.slice(-12),
       name: p.name || 'Unnamed',
+      firstSeen: p.firstSeen || p.timestamp,
     })))
 
     return filtered
