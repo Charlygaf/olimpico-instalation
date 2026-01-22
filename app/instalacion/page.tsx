@@ -57,21 +57,33 @@ export default function InstalacionPage() {
   // Get phones with gyroscope data, sorted by connection time
   // First connected user gets first layer, second user gets second layer
   const phonesWithGyro = useMemo(() => {
-    return phones
+    const filtered = phones
       .filter(p => p.gyroscope)
       .sort((a, b) => a.timestamp - b.timestamp)
       .slice(0, 2) // Only use first 2 phones with gyroscope
+
+    console.log('📱 Phones with gyroscope:', filtered.map((p, i) => ({
+      index: i,
+      id: p.id,
+      name: p.name || 'Unnamed',
+      timestamp: p.timestamp,
+      gyroscope: p.gyroscope,
+    })))
+
+    return filtered
   }, [phones])
 
   // Calculate position for a layer based on gyroscope data
   // Phone acts as a pointer: tilt left/right moves layer horizontally, tilt forward/back moves vertically
-  const calculateLayerPosition = (phone: PhoneData | undefined): LayerPosition => {
+  const calculateLayerPosition = (phone: PhoneData | undefined, layerName: string): LayerPosition => {
     const screenCenterX = 50 // 50% of screen width
     const screenCenterY = 50 // 50% of screen height
     const maxOffset = 45 // Maximum offset in percentage
 
     if (phone?.gyroscope) {
       const { alpha, beta } = phone.gyroscope
+
+      console.log(`🎯 ${layerName} - Phone ID: ${phone.id}, Name: ${phone.name || 'Unnamed'}, Alpha: ${alpha}, Beta: ${beta}`)
 
       // Horizontal movement: alpha (rotation around Z-axis) controls X position
       // Use 60-degree range (±30 degrees from center) for frontal plane interaction
@@ -85,19 +97,32 @@ export default function InstalacionPage() {
       // Invert beta so forward tilt moves layer up (more intuitive)
       const normalizedBeta = Math.max(-1, Math.min(1, -beta / 30)) // 60-degree range = ±30
 
-      return {
+      const position = {
         x: screenCenterX + normalizedAlpha * maxOffset,
         y: screenCenterY + normalizedBeta * maxOffset,
       }
+
+      console.log(`📍 ${layerName} - Calculated position:`, { x: position.x, y: position.y, normalizedAlpha, normalizedBeta })
+
+      return position
     }
+
+    console.log(`⚠️ ${layerName} - No phone assigned, centering layer`)
 
     // No user connected - center it
     return { x: screenCenterX, y: screenCenterY }
   }
 
   // Calculate positions for both layers
-  const layer1Position = useMemo(() => calculateLayerPosition(phonesWithGyro[0]), [phonesWithGyro])
-  const layer2Position = useMemo(() => calculateLayerPosition(phonesWithGyro[1]), [phonesWithGyro])
+  const layer1Position = useMemo(() => {
+    const phone = phonesWithGyro[0]
+    return calculateLayerPosition(phone, 'Layer 1 (Bun)')
+  }, [phonesWithGyro])
+
+  const layer2Position = useMemo(() => {
+    const phone = phonesWithGyro[1]
+    return calculateLayerPosition(phone, 'Layer 2 (Lettuce)')
+  }, [phonesWithGyro])
 
   // SVG paths from provided layers
   // Paths are in 1920x1080 coordinate space
