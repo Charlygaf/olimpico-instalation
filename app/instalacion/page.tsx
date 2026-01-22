@@ -71,15 +71,18 @@ export default function InstalacionPage() {
     if (phoneWithGyro?.gyroscope) {
       const { alpha, beta } = phoneWithGyro.gyroscope
 
-      // Horizontal movement: alpha (rotation around Z-axis, 0-360 degrees) controls X position
-      // Normalize alpha to -1 to 1 range for centered movement
-      const normalizedAlpha = ((alpha % 360) / 360) * 2 - 1
+      // Horizontal movement: alpha (rotation around Z-axis) controls X position
+      // Use 60-degree range (±30 degrees from center) for frontal plane interaction
+      // Normalize alpha to -1 to 1 range based on 60-degree total range
+      // Center alpha around 0 (or handle device orientation)
+      const alphaCenter = 0 // Adjust if needed based on device orientation
+      const alphaOffset = ((alpha - alphaCenter + 180) % 360) - 180 // Normalize to -180 to 180
+      const normalizedAlpha = Math.max(-1, Math.min(1, alphaOffset / 30)) // 60-degree range = ±30
 
-      // Vertical movement: beta (front-back tilt, -180 to 180 degrees) controls Y position
-      // Tilt phone forward (positive beta) → layer moves down
-      // Tilt phone backward (negative beta) → layer moves up
+      // Vertical movement: beta (front-back tilt) controls Y position
+      // Use 60-degree range (±30 degrees from center) for frontal plane interaction
       // Invert beta so forward tilt moves layer up (more intuitive)
-      const normalizedBeta = Math.max(-1, Math.min(1, -beta / 180))
+      const normalizedBeta = Math.max(-1, Math.min(1, -beta / 30)) // 60-degree range = ±30
 
       return {
         x: screenCenterX + normalizedAlpha * maxOffset,
