@@ -57,17 +57,23 @@ export default function InstalacionPage() {
   // Get phones with gyroscope data, sorted by connection time
   // First connected user gets first layer, second user gets second layer
   const phonesWithGyro = useMemo(() => {
+    // Log all phones first
+    console.log('📱 All phones:', phones.length, phones.map(p => ({
+      id: p.id,
+      name: p.name || 'Unnamed',
+      hasGyro: !!p.gyroscope,
+      gyro: p.gyroscope,
+    })))
+
     const filtered = phones
       .filter(p => p.gyroscope)
       .sort((a, b) => a.timestamp - b.timestamp)
       .slice(0, 2) // Only use first 2 phones with gyroscope
 
-    console.log('📱 Phones with gyroscope:', filtered.map((p, i) => ({
-      index: i,
+    console.log(`✅ Phones with gyroscope: ${filtered.length}`, filtered.map((p, i) => ({
+      layer: i === 0 ? 'Layer 1 (Bun)' : 'Layer 2 (Lettuce)',
       id: p.id,
       name: p.name || 'Unnamed',
-      timestamp: p.timestamp,
-      gyroscope: p.gyroscope,
     })))
 
     return filtered
@@ -82,8 +88,6 @@ export default function InstalacionPage() {
 
     if (phone?.gyroscope) {
       const { alpha, beta } = phone.gyroscope
-
-      console.log(`🎯 ${layerName} - Phone ID: ${phone.id}, Name: ${phone.name || 'Unnamed'}, Alpha: ${alpha}, Beta: ${beta}`)
 
       // Horizontal movement: alpha (rotation around Z-axis) controls X position
       // Use 60-degree range (±30 degrees from center) for frontal plane interaction
@@ -102,12 +106,13 @@ export default function InstalacionPage() {
         y: screenCenterY + normalizedBeta * maxOffset,
       }
 
-      console.log(`📍 ${layerName} - Calculated position:`, { x: position.x, y: position.y, normalizedAlpha, normalizedBeta })
+      // Only log occasionally to reduce spam (every 10th update)
+      if (Math.random() < 0.1) {
+        console.log(`🎯 ${layerName} - Phone: ${phone.id.slice(-8)}, Alpha: ${alpha.toFixed(1)}, Beta: ${beta.toFixed(1)}, Pos: (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`)
+      }
 
       return position
     }
-
-    console.log(`⚠️ ${layerName} - No phone assigned, centering layer`)
 
     // No user connected - center it
     return { x: screenCenterX, y: screenCenterY }
