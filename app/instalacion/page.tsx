@@ -95,8 +95,8 @@ export default function InstalacionPage() {
     const screenCenterX = 50 // 50% of screen width
     const screenCenterY = 50 // 50% of screen height
     const maxOffset = 45 // Maximum offset in percentage
-    // 20px offset in y-axis: 20px / 1080px * 100 = ~1.85% per layer
-    const layerYOffset = (20 / 1080) * 100 * layerIndex
+    // 100px offset in y-axis: 100px / 1080px * 100 = ~9.26% per layer
+    const layerYOffset = (100 / 1080) * 100 * layerIndex
 
     if (phone?.gyroscope) {
       const { alpha, beta } = phone.gyroscope
