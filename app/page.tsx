@@ -10,8 +10,17 @@ export default function Home() {
   const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
-    // Generate a unique connection ID
-    const id = `phone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    // Use a fixed connection ID so the QR code is always the same
+    // This allows printing the QR code physically
+    const STORAGE_KEY = 'fixed-phone-connection-id'
+    let id = localStorage.getItem(STORAGE_KEY)
+
+    // If no fixed ID exists, generate one and save it permanently
+    if (!id) {
+      id = 'phone-main-installation'
+      localStorage.setItem(STORAGE_KEY, id)
+    }
+
     setConnectionId(id)
 
     // Fetch the server URL from the API (which knows the local IP or hosted URL)
