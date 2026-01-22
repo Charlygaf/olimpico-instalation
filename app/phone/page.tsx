@@ -19,6 +19,7 @@ function PhonePageContent() {
   const [connectionId, setConnectionId] = useState<string>('')
   const [data, setData] = useState<PhoneData | null>(null)
   const [showVideoModal, setShowVideoModal] = useState(false)
+  const [gyroscopeEnabled, setGyroscopeEnabled] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const gyroscopeCleanupRef = useRef<(() => void) | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -54,8 +55,8 @@ function PhonePageContent() {
     setData(phoneData)
   }, [connectionId])
 
-  // Auto-enable gyroscope on mount
-  useEffect(() => {
+  // Enable gyroscope function
+  const enableGyroscope = () => {
     const setupGyroscope = () => {
       const handleOrientation = (event: DeviceOrientationEvent) => {
         const alpha = event.alpha
@@ -82,6 +83,8 @@ function PhonePageContent() {
       gyroscopeCleanupRef.current = () => {
         window.removeEventListener('deviceorientation', handleOrientation)
       }
+
+      setGyroscopeEnabled(true)
     }
 
     // Request device orientation permission (iOS 13+)
@@ -99,8 +102,13 @@ function PhonePageContent() {
     } else if (typeof DeviceOrientationEvent !== 'undefined') {
       // Android or older iOS - try to access directly
       setupGyroscope()
+    } else {
+      // Device orientation not supported
     }
+  }
 
+  // Cleanup gyroscope on unmount
+  useEffect(() => {
     return () => {
       if (gyroscopeCleanupRef.current) {
         gyroscopeCleanupRef.current()
@@ -154,6 +162,17 @@ function PhonePageContent() {
         <h1 className="text-2xl md:text-3xl font-bold">
           Apunta al medio de la pantalla y apreta el botón
         </h1>
+        <button
+          onClick={enableGyroscope}
+          disabled={gyroscopeEnabled}
+          className={`px-8 py-4 font-bold text-lg rounded-lg transition-colors ${
+            gyroscopeEnabled
+              ? 'bg-green-600 text-white cursor-not-allowed'
+              : 'bg-white text-black hover:bg-gray-200'
+          }`}
+        >
+          {gyroscopeEnabled ? 'Giroscopio Activado' : 'Activar Giroscopio'}
+        </button>
         <button
           onClick={() => setShowVideoModal(true)}
           className="px-8 py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors"
