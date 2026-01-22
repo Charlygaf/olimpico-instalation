@@ -91,10 +91,12 @@ export default function InstalacionPage() {
 
   // Calculate position for a layer based on gyroscope data
   // Phone acts as a pointer: tilt left/right moves layer horizontally, tilt forward/back moves vertically
-  const calculateLayerPosition = (phone: PhoneData | undefined, layerName: string): LayerPosition => {
+  const calculateLayerPosition = (phone: PhoneData | undefined, layerName: string, layerIndex: number): LayerPosition => {
     const screenCenterX = 50 // 50% of screen width
     const screenCenterY = 50 // 50% of screen height
     const maxOffset = 45 // Maximum offset in percentage
+    // 20px offset in y-axis: 20px / 1080px * 100 = ~1.85% per layer
+    const layerYOffset = (20 / 1080) * 100 * layerIndex
 
     if (phone?.gyroscope) {
       const { alpha, beta } = phone.gyroscope
@@ -113,7 +115,7 @@ export default function InstalacionPage() {
 
       const position = {
         x: screenCenterX + normalizedAlpha * maxOffset,
-        y: screenCenterY + normalizedBeta * maxOffset,
+        y: screenCenterY + normalizedBeta * maxOffset + layerYOffset,
       }
 
       // Only log occasionally to reduce spam (every 10th update)
@@ -124,39 +126,39 @@ export default function InstalacionPage() {
       return position
     }
 
-    // No user connected - center it
-    return { x: screenCenterX, y: screenCenterY }
+    // No user connected - center it with layer offset
+    return { x: screenCenterX, y: screenCenterY + layerYOffset }
   }
 
-  // Calculate positions for both layers
+  // Calculate positions for all layers
   const layer1Position = useMemo(() => {
     const phone = phonesWithGyro[0]
-    return calculateLayerPosition(phone, 'Layer 1 (Bun)')
+    return calculateLayerPosition(phone, 'Layer 1 (Bun)', 0)
   }, [phonesWithGyro])
 
   const layer2Position = useMemo(() => {
     const phone = phonesWithGyro[1]
-    return calculateLayerPosition(phone, 'Layer 2 (Lettuce)')
+    return calculateLayerPosition(phone, 'Layer 2 (Lettuce)', 1)
   }, [phonesWithGyro])
 
   const layer3Position = useMemo(() => {
     const phone = phonesWithGyro[2]
-    return calculateLayerPosition(phone, 'Layer 3 (Tomato)')
+    return calculateLayerPosition(phone, 'Layer 3 (Tomato)', 2)
   }, [phonesWithGyro])
 
   const layer4Position = useMemo(() => {
     const phone = phonesWithGyro[3]
-    return calculateLayerPosition(phone, 'Layer 4 (Ham)')
+    return calculateLayerPosition(phone, 'Layer 4 (Ham)', 3)
   }, [phonesWithGyro])
 
   const layer5Position = useMemo(() => {
     const phone = phonesWithGyro[4]
-    return calculateLayerPosition(phone, 'Layer 5 (Eggs)')
+    return calculateLayerPosition(phone, 'Layer 5 (Eggs)', 4)
   }, [phonesWithGyro])
 
   const layer6Position = useMemo(() => {
     const phone = phonesWithGyro[5]
-    return calculateLayerPosition(phone, 'Layer 6 (Bun)')
+    return calculateLayerPosition(phone, 'Layer 6 (Bun)', 5)
   }, [phonesWithGyro])
 
   // SVG paths from provided layers
