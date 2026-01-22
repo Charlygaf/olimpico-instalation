@@ -216,7 +216,7 @@ export default function InstalacionPage() {
 
         {/* Layer 5 - ham (rendered second) */}
         <g
-          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
+          transform={`translate(${(layer5Position.x / 100) * 1920 - pathCenterX + 50}, ${(layer5Position.y / 100) * 1080 - pathCenterY})`}
           style={{
             transition: 'transform 0.05s ease-out',
           }}
